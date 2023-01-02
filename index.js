@@ -58,9 +58,6 @@ app.use((error, req, res, next) => {
     res.status(status).json({message: message, data: data})
 })
 
-app.get("/", (req, res)=> {
-  res.send('Hello Guys!')
-})
 app.use("/v1/auth", authRoutes);
 app.use("/v1/destination", destRoutes);
 
