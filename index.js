@@ -9,6 +9,7 @@ const port = 8000;
 // Routes
 const destRoutes = require("./src/routes/destinations");
 const authRoutes = require("./src/routes/auth");
+const homeRoutes = require("./src/routes/home");
 
 const fileStorage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -57,7 +58,9 @@ app.use((error, req, res, next) => {
     res.status(status).json({message: message, data: data})
 })
 
-
+app.get("/", (req, res)=> {
+  res.send('Hello Guys!')
+})
 app.use("/v1/auth", authRoutes);
 app.use("/v1/destination", destRoutes);
 
