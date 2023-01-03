@@ -9,7 +9,6 @@ const port = 8000;
 // Routes
 const destRoutes = require("./src/routes/destinations");
 const authRoutes = require("./src/routes/auth");
-const homeRoutes = require("./src/routes/home");
 
 const fileStorage = multer.diskStorage({
     destination: (req, file, cb) => {
