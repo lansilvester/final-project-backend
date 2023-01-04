@@ -15,9 +15,10 @@ const Destination = new Schema(
             type: String,
             required: true,
         },
-        author: {
-            type: Object,
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
             required: true,
+            ref: 'Users'
         }
     },{
         timestamps: true

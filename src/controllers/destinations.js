@@ -2,6 +2,7 @@ const {validationResult} = require('express-validator');
 const path = require('path');
 const fs = require('fs');
 const Destination = require('../models/destination');
+const Users = require('../models/users');
 
 
 exports.createDest = (req, res, next) => {
@@ -19,16 +20,16 @@ exports.createDest = (req, res, next) => {
         err.errorStatus = 422;
         throw err;  
     }
-    const title = req.body.title;
-    const description = req.body.description;
+    const {title, description} = req.body
     const image = req.file.path;
+    
 
     // Post data ke mongoDB dengan response API
     const Posting = new Destination({
         title: title,
         description: description,
         image: image,
-        author: {uuid: 1, name: 'Testing'}
+        user: req.user.id,
     })
     Posting.save()
     .then(result => {
@@ -47,11 +48,11 @@ exports.getAllDest = (req, res, next) => {
     const perPage = req.query.perPage || 5;
     let totalItems;
 
-    Destination.find().countDocuments()
+    Destination.find({}).countDocuments()
     .then(count=>{
         // For pagination and item per page
         totalItems = count;
-        return Destination.find()
+        return Destination.find({user: req.user.id})
         .skip((parseInt(currentPage) - 1) * parseInt(perPage))
         .limit(parseInt(perPage));
     })
@@ -86,7 +87,21 @@ exports.getDestById = (req, res, next) => {
         next(err)
     })
 };
-exports.updateDest = (req, res, next) => {
+exports.updateDest = async(req, res, next) => {
+    const user = await User.findById(req.user.id)
+    // Check user
+    if(!user){
+        res.status(401).json({
+            status: "Unauthorized",
+            message: "User not found"
+        })
+        throw new Error("User not found")
+    }
+    if(Destination.user.toString() !== user.id){
+        res.status(401)
+        throw new Error('User not authorized!')
+    }
+
     const errors = validationResult(req);
 
     if(!errors.isEmpty()){
@@ -129,8 +144,21 @@ exports.updateDest = (req, res, next) => {
         next(err)
     });
 };
-exports.deleteDest = (req, res, next) => {
+exports.deleteDest = async(req, res, next) => {
     const postId = req.params.postId;
+    const user = await Users.findById(req.user.id)
+    // Check user
+    if(!user){
+        res.status(401).json({
+            status: "Unauthorized",
+            message: "User not found"
+        })
+        throw new Error("User not found")
+    }
+    if(Destination.user.toString() !== user.id){
+        res.status(401)
+        throw new Error('User not authorized!')
+    }
 
     Destination.findById(postId)
     .then(post => {

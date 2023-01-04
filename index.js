@@ -3,9 +3,13 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const multer = require('multer');
 const path = require('path');
+const dotenv = require('dotenv');
+dotenv.config();
+
 
 const app = express();
-const port = 8000;
+const port = process.env.PORT;
+
 // Routes
 const destRoutes = require("./src/routes/destinations");
 const authRoutes = require("./src/routes/auth");
@@ -62,7 +66,7 @@ app.use("/v1/destination", destRoutes);
 
 // Connection MongoDB
 mongoose.set('strictQuery', true);
-mongoose.connect('mongodb+srv://team:sparta@cluster0.6mmsyfu.mongodb.net/?retryWrites=true&w=majority')
+mongoose.connect( process.env.MONGO_URI)
 .then(() => {
     app.listen(port, () => console.log('Connection Success'));
 })
