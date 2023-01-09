@@ -3,12 +3,14 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const multer = require('multer');
 const path = require('path');
+const createError = require('http-errors');
 const dotenv = require('dotenv');
 dotenv.config();
 
 
 const app = express();
-const port = process.env.PORT;
+
+const port = process.env.PORT || 8000;
 
 // Routes
 const destRoutes = require("./src/routes/destinations");
@@ -21,6 +23,20 @@ const fileStorage = multer.diskStorage({
     filename: (req,file,cb) => {
       cb(null, new Date().getTime() + '-' + file.originalname)
     }
+})
+
+app.get('/', async (req, res, next) => {
+  res.send('Hello!')
+})
+
+app.use((err, req, res, next) => {
+  res.status(err.status || 500)
+  res.send({
+    error: {
+      status: err.status || 500,
+      message: err.message,
+    }
+  })
 })
 
 const fileFilter = (req, file, cb) => {
